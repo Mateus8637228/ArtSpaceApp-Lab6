@@ -13,3 +13,11 @@
 .externalNativeBuild
 .cxx
 local.properties
+.security-reports/
+__pycache__/
+.env
+.env.*
+*.pem
+*.key
+*.jks
+*.keystore

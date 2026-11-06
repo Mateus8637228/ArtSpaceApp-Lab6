@@ -24,9 +24,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,8 +53,18 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun ArtSpaceApp() {
-    var currentStep by remember { mutableIntStateOf(1) }
+fun ArtSpaceApp(artSpaceViewModel: ArtSpaceViewModel = viewModel()) {
+    val uiState by artSpaceViewModel.uiState.collectAsStateWithLifecycle()
+    ArtSpaceScreen(uiState, artSpaceViewModel::previousArtwork, artSpaceViewModel::nextArtwork)
+}
+
+@Composable
+fun ArtSpaceScreen(
+    uiState: ArtSpaceUiState,
+    onPrevious: () -> Unit,
+    onNext: () -> Unit
+) {
+    val currentStep = uiState.currentStep
 
     BoxWithConstraints(
         modifier = Modifier.fillMaxSize(),
@@ -74,8 +83,8 @@ fun ArtSpaceApp() {
                 ImageDisplay(currentStep, modifier = Modifier.weight(1f))
                 ControlPanel(
                     currentStep = currentStep,
-                    onPrevClick = { if (currentStep > 1) currentStep-- },
-                    onNextClick = { if (currentStep < 3) currentStep++ },
+                    onPrevClick = onPrevious,
+                    onNextClick = onNext,
                     modifier = Modifier.weight(1f)
                 )
             }
@@ -91,8 +100,8 @@ fun ArtSpaceApp() {
                 Spacer(modifier = Modifier.height(32.dp))
                 ControlPanel(
                     currentStep = currentStep,
-                    onPrevClick = { if (currentStep > 1) currentStep-- },
-                    onNextClick = { if (currentStep < 3) currentStep++ }
+                    onPrevClick = onPrevious,
+                    onNextClick = onNext
                 )
             }
         }
@@ -203,6 +212,6 @@ fun ControlPanel(
 @Composable
 fun ArtSpaceAppPreview() {
     MaterialTheme {
-        ArtSpaceApp()
+        ArtSpaceScreen(ArtSpaceUiState(), {}, {})
     }
 }
